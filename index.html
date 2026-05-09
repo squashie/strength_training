@@ -109,6 +109,8 @@
     border-bottom: 2px solid transparent;
     transition: color 0.2s, border-color 0.2s;
     font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   .nav-tab:hover { color: var(--paper); }
   .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -151,6 +153,8 @@
     padding: 1.2rem;
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   .week-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(201,79,30,0.1); }
   .wc-phase { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
@@ -199,20 +203,55 @@
     border-bottom: 1px solid var(--border);
     cursor: pointer;
     transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   .ex-item:last-child { border-bottom: none; }
   .ex-item:hover { background: #f0ede4; }
-  .ex-item:hover .ex-icon { background: var(--accent); }
 
   .ex-icon {
-    width: 56px; min-width: 56px;
+    width: 80px; min-width: 80px;
     display: flex; align-items: center; justify-content: center;
     border-right: 1px solid var(--border);
     background: #f7f4ed;
+    overflow: hidden;
     transition: background 0.15s;
-    padding: 8px;
+    padding: 0;
   }
-  .ex-icon svg { width: 36px; height: 36px; }
+
+  /* YouTube thumbnail in list rows */
+  .ex-icon .yt-thumb {
+    display: block;
+    width: 100%; height: 100%;
+    text-decoration: none;
+    position: relative;
+  }
+  .ex-icon .yt-thumb-inner {
+    position: relative;
+    width: 100%; height: 54px;
+    overflow: hidden;
+  }
+  .ex-icon .yt-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ex-icon .yt-play-btn {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .ex-item:hover .yt-play-btn { opacity: 1; }
+  .ex-icon .yt-meta { display: none; }
+
+  /* yt-no-thumb fallback */
+  .yt-no-thumb { background: #e0ddd4; }
+  .yt-fallback-inner {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px; padding: 8px;
+    font-size: 10px; color: var(--muted); text-align: center;
+  }
 
   .ex-info { padding: 10px 14px; flex: 1; }
   .ex-name { font-size: 13px; font-weight: 500; }
@@ -253,14 +292,44 @@
   .modal-close:hover { color: var(--paper); }
   .modal-body { padding: 1.5rem; }
   .modal-illus {
-    display: flex; align-items: center; justify-content: center;
-    background: #f0ede4;
-    border-radius: 4px;
-    padding: 1.5rem;
     margin-bottom: 1.25rem;
-    min-height: 160px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
   }
-  .modal-illus svg { width: 200px; height: 140px; }
+  .modal-illus .yt-thumb {
+    display: block; text-decoration: none;
+  }
+  .modal-illus .yt-thumb-inner {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0; overflow: hidden;
+  }
+  .modal-illus .yt-thumb img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .modal-illus .yt-play-btn {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 1; transition: opacity 0.2s;
+  }
+  .modal-illus .yt-play-btn svg { width: 64px; height: 64px; }
+  .modal-illus:hover .yt-play-btn { opacity: 0.8; }
+  .modal-illus .yt-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px;
+    background: #111;
+  }
+  .modal-illus .yt-title {
+    font-size: 12px; color: #eee; font-weight: 500;
+    font-family: var(--font-body);
+  }
+  .modal-illus .yt-channel {
+    font-size: 11px; color: #999;
+    font-family: var(--font-body);
+  }
   .modal-sets { font-family: var(--font-display); font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
   .modal-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
   .modal-tips { margin-top: 1rem; }
@@ -304,6 +373,105 @@
     margin-top: 2rem; font-size: 13px; color: var(--muted); line-height: 1.8;
   }
   .progress-note strong { color: var(--ink); font-weight: 500; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+
+    /* Header */
+    header { padding: 2rem 1.25rem 1.75rem; }
+    header h1 { font-size: 3.2rem; }
+    header p { font-size: 14px; }
+    .header-badges { margin-top: 1rem; gap: 6px; }
+    .badge { font-size: 10px; padding: 3px 9px; }
+
+    /* Nav — equal-width tabs that fill the bar */
+    .nav-inner { justify-content: stretch; }
+    .nav-tab {
+      flex: 1;
+      text-align: center;
+      padding: 13px 6px;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    /* Main padding */
+    main { padding: 1.25rem 1rem 3rem; }
+
+    /* Overview stats: 2-col grid */
+    .overview-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+    .stat-card { padding: 1rem; }
+    .stat-val { font-size: 2rem; }
+
+    /* Week cards: 2-col on mobile */
+    .week-overview { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+    .week-card { padding: 1rem; }
+    .wc-title { font-size: 1.2rem; }
+    .wc-desc { font-size: 11px; }
+
+    /* Week header stacks */
+    .week-header { flex-direction: column; gap: 4px; }
+    .week-title { font-size: 1.8rem; }
+    .week-scheme { font-size: 12px; }
+
+    /* Day grid: single column on mobile */
+    .day-grid { grid-template-columns: 1fr; gap: 12px; }
+
+    /* Exercise rows */
+    .ex-icon { width: 68px; min-width: 68px; }
+    .ex-icon .yt-thumb-inner { height: 46px; }
+    /* Always show play btn on touch — no hover */
+    .ex-icon .yt-play-btn { opacity: 0.85; }
+    .ex-icon .yt-play-btn svg { width: 28px; height: 28px; }
+    .ex-info { padding: 8px 10px; }
+    .ex-name { font-size: 13px; }
+    .ex-sets { font-size: 1rem; padding: 8px 10px 8px 0; min-width: 50px; }
+
+    /* Equipment grid: single col */
+    .equip-grid { grid-template-columns: 1fr; }
+
+    /* Modal: full-screen on mobile */
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal {
+      max-width: 100%;
+      border-radius: 14px 14px 0 0;
+      max-height: 92dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      animation: modalSlideUp 0.25s ease;
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(100%); opacity: 1; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-head { padding: 1rem 1.25rem; }
+    .modal-title { font-size: 1.5rem; }
+    .modal-body { padding: 1.1rem 1.25rem 2rem; }
+    /* Always show play button in modal on touch */
+    .modal-illus .yt-play-btn { opacity: 1; }
+    .modal-sets { font-size: 1.6rem; }
+    .modal-desc { font-size: 13px; }
+    .modal-tips li { font-size: 12px; }
+    /* Touch-friendly close button */
+    .modal-close { font-size: 20px; padding: 8px; min-width: 40px; min-height: 40px; }
+
+    /* Progress note */
+    .progress-note { font-size: 12px; padding: 1rem 1.1rem; }
+
+    /* Section title */
+    .section-title { font-size: 1.3rem; }
+  }
+
+  /* Slightly tighten tablet too */
+  @media (max-width: 780px) and (min-width: 601px) {
+    .day-grid { grid-template-columns: 1fr; }
+    .nav-tab { padding: 13px 14px; font-size: 11px; }
+  }
+
+  /* Touch: always show play button (no hover on touch screens) */
+  @media (hover: none) {
+    .ex-icon .yt-play-btn { opacity: 0.8; }
+    .modal-illus .yt-play-btn { opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -324,12 +492,12 @@
 
 <nav>
   <div class="nav-inner">
-    <a class="nav-tab active" href="#" onclick="showSection('overview',this)">Overview</a>
-    <a class="nav-tab" href="#" onclick="showSection('w1',this)">Wk 1–2</a>
-    <a class="nav-tab" href="#" onclick="showSection('w3',this)">Wk 3–4</a>
-    <a class="nav-tab" href="#" onclick="showSection('w5',this)">Wk 5–6</a>
-    <a class="nav-tab" href="#" onclick="showSection('w7',this)">Deload</a>
-    <a class="nav-tab" href="#" onclick="showSection('equipment',this)">Equipment</a>
+    <a class="nav-tab active" href="#" onclick="showSection('overview',this);return false;">Overview</a>
+    <a class="nav-tab" href="#" onclick="showSection('w1',this);return false;">Wk 1–2</a>
+    <a class="nav-tab" href="#" onclick="showSection('w3',this);return false;">Wk 3–4</a>
+    <a class="nav-tab" href="#" onclick="showSection('w5',this);return false;">Wk 5–6</a>
+    <a class="nav-tab" href="#" onclick="showSection('w7',this);return false;">Deload</a>
+    <a class="nav-tab" href="#" onclick="showSection('equipment',this);return false;">Equipment</a>
   </div>
 </nav>
 
@@ -457,6 +625,7 @@
     </div>
     <div class="modal-body">
       <div class="modal-illus" id="modal-illus"></div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:1rem;">↗ Click the thumbnail to watch the full tutorial on YouTube</p>
       <div class="modal-sets" id="modal-sets"></div>
       <div class="modal-desc" id="modal-desc"></div>
       <div class="modal-tips" id="modal-tips"></div>

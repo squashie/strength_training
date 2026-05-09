@@ -38,7 +38,7 @@ renderDays('w3', 'w3');
 renderDays('w5', 'w5');
 renderDays('w7', 'w7');
 
-// Section switching
+// Section switching — scroll to top only on desktop (mobile: sticky nav is enough)
 function showSection(id, tabEl) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -47,7 +47,13 @@ function showSection(id, tabEl) {
   if (section) section.classList.add('active');
   if (tabEl) tabEl.classList.add('active');
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Only scroll on desktop — on mobile the page stays put so the nav stays visible
+  if (window.innerWidth > 600) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
   return false;
 }
 
@@ -67,15 +73,68 @@ function openModal(name, sets) {
     tipsEl.innerHTML = '';
   }
 
-  document.getElementById('modal').classList.add('open');
+  const overlay = document.getElementById('modal');
+  overlay.classList.add('open');
+
+  // Prevent body scroll while modal open
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal(e) {
-  if (e.target === document.getElementById('modal')) {
+  if (!e || e.target === document.getElementById('modal')) {
     document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
   }
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') document.getElementById('modal').classList.remove('open');
+  if (e.key === 'Escape') closeModal();
 });
+
+// Swipe-down to close modal on mobile
+(function() {
+  const overlay = document.getElementById('modal');
+  let startY = 0;
+  let startX = 0;
+  let dragging = false;
+
+  overlay.addEventListener('touchstart', function(e) {
+    const modal = overlay.querySelector('.modal');
+    // Only initiate swipe if touch starts on the modal itself (not a link inside)
+    if (modal && modal.contains(e.target)) {
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      dragging = true;
+    }
+  }, { passive: true });
+
+  overlay.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    const dy = e.touches[0].clientY - startY;
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    // Only track vertical swipes
+    if (dy > 0 && dx < 40) {
+      const modal = overlay.querySelector('.modal');
+      if (modal) {
+        modal.style.transform = `translateY(${Math.min(dy, 200)}px)`;
+        modal.style.transition = 'none';
+        modal.style.opacity = Math.max(0.4, 1 - dy / 300).toString();
+      }
+    }
+  }, { passive: true });
+
+  overlay.addEventListener('touchend', function(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    const modal = overlay.querySelector('.modal');
+    if (modal) {
+      modal.style.transition = '';
+      modal.style.transform = '';
+      modal.style.opacity = '';
+      if (dy > 80) {
+        closeModal();
+      }
+    }
+  }, { passive: true });
+})();
